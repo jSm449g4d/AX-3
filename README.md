@@ -1,4 +1,4 @@
-# AX-4
+# AX-3
 This is a sample of GAN by TF2.0
 
 ## How to use
