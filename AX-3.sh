@@ -1,7 +1,7 @@
 ﻿
-echo "download from \"Labeled Faces in the Wild\""
-URL=http://vis-www.cs.umass.edu/lfw/lfw.tgz
+echo "download from \"Index of /~taesung_park/CycleGAN/datasets\""
+URL=https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/datasets/apple2orange.zip
 echo $URL
 wget -N $URL
-tar -zxf lfw.tgz
-rm lfw.tgz
+unzip apple2orange.zip
+rm apple2orange.zip

@@ -63,18 +63,19 @@ class m_gen(keras.Model):
                      c3c(16),
                      UpSampling2D(2),
                      c3c(24),
-                     c3c(28),
+                     c3c(32),
                      UpSampling2D(2),
                      c3c(32),
                      c3c(48),
                      UpSampling2D(2),
                      c3c(48),
-                     c3c(56),
+                     c3c(54),
                      c3c(64),
                      UpSampling2D(2),
                      c3c(64),
                      c3c(72),
                      c3c(84),
+                     c3c(94),
                      Conv2D(3,1,padding="same",activation="sigmoid"),
                 ]
         return 
@@ -94,18 +95,19 @@ class m_dis(keras.Model):
                      Conv2D(24,4,2,padding="same",activation="elu"),
                      LayerNormalization(),
                      Dropout(0.05),
-                     c3c(32),
+                     c3c(28),
                      c3c(32),
                      c3c(36),
                      Conv2D(36,4,2,padding="same",activation="elu"),
                      LayerNormalization(),
                      Dropout(0.05),
                      c3c(42),
+                     c3c(46),
                      c3c(48),
                      Conv2D(48,4,2,padding="same",activation="elu"),
                      LayerNormalization(),
                      Dropout(0.05),
-                     c3c(64),
+                     c3c(54),
                      c3c(64),
                      Conv2D(64,4,2,padding="same",activation="elu"),
                      LayerNormalization(),
@@ -117,6 +119,7 @@ class m_dis(keras.Model):
                      Dropout(0.05),
                      c3c(84),
                      Flatten(),
+                     Dense(84,activation="elu"),
                      Dense(64,activation="elu"),
                      LayerNormalization(),
                      Dense(32,activation="elu"),
@@ -136,7 +139,7 @@ class gan():
     def pred(self,batch=16):
         return self.gen(np.random.rand(batch,8).astype(np.float32))
     def train(self,data=[],epoch=1000,batch=16):
-        optimizer = keras.optimizers.SGD(0.001)
+        optimizer = keras.optimizers.SGD(0.003)
         ones=np.ones(batch).astype(np.float32)
         zeros=np.zeros(batch).astype(np.float32)
         labels=np.random.rand(data.shape[0],8).astype(np.float32)
@@ -187,9 +190,9 @@ class gan():
     
 if __name__ == '__main__':
     tf_ini()
-    img=img2np(ffzk("./lfw"),64)
+    img=img2np(ffzk("./apple2orange/trainA"),64)
     gans=gan()
-    gans.train(img,epoch=30000,batch=16)
+    gans.train(img,epoch=20000,batch=16)
     
     
     
