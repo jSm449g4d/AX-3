@@ -87,8 +87,10 @@ class m_gen(keras.Model):
         return 
     @tf.function
     def call(self, mod,training=None):#plz add layers below...
+        print("\nAAAAAAAAAAAAAAAAAAAAAAA")
         for i in range(len(self.layer1)):
             mod=self.layer1[i](mod)
+        print("\nBBBBBBBBBB")
         return mod
     
     
@@ -201,7 +203,7 @@ if args.epoch:epochs=args.epoch;print("\n**epoch=",epochs)
 
 if __name__ == '__main__':
     tf_ini()
-    img=img2np(ffzk("./lfw"),64)#apple2orange/trainA
+    img=img2np(ffzk("./apple2orange/testA/"),64)#apple2orange/trainA
     gans=gan()
     gans.train(img,epoch=epochs,batch=batch)
     
