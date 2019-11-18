@@ -10,7 +10,7 @@ This is a sample of GAN by Tensorflow2.0
 ## How to use
 0.install required modules
 
-1.`bash AX-3.sh`
+1.`bash apple2orange.sh`
 
 2.`python3 main.py` 
 
