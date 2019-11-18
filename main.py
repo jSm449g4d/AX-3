@@ -6,8 +6,14 @@ from tensorflow.keras.layers import Dense,Dropout,Conv2D,Conv2DTranspose,\
 ReLU,Softmax,Flatten,Reshape,UpSampling2D,Input,Activation,LayerNormalization
 from tqdm import tqdm
 import random
+import argparse
 
 from ARutil import ffzk,mkdiring,rootYrel
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--batch' ,help="batch",type=int)
+parser.add_argument('-e', '--epoch' ,help="epochs",type=int)
+args = parser.parse_args()
 
 
 def img2np(dir=[],img_len=0):
@@ -188,11 +194,16 @@ class gan():
         dis1=tf.reduce_sum(keras.losses.binary_crossentropy (zeros,dis1)) / batch
         return dis1.numpy()
     
+batch=16
+epochs=20000
+if args.batch:batch=args.batch;print("\n**batch=",batch)
+if args.epoch:epochs=args.epoch;print("\n**epoch=",epochs)
+
 if __name__ == '__main__':
     tf_ini()
-    img=img2np(ffzk("./apple2orange/trainA"),64)
+    img=img2np(ffzk("./lfw"),64)#apple2orange/trainA
     gans=gan()
-    gans.train(img,epoch=20000,batch=16)
+    gans.train(img,epoch=epochs,batch=batch)
     
     
     
