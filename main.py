@@ -10,11 +10,6 @@ import argparse
 
 from ARutil import ffzk,mkdiring,rootYrel
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-b', '--batch' ,help="batch",type=int)
-parser.add_argument('-e', '--epoch' ,help="epochs",type=int)
-args = parser.parse_args()
-
 
 def img2np(dir=[],img_len=0):
     img=[]
@@ -51,7 +46,6 @@ class c3c(keras.Model):
         self.layer1=[Conv2D(dim,1,padding="same"),
                 ]
         return
-    @tf.function
     def call(self,mod):#plz add layers below...
         mod_1=mod
         for i in range(len(self.layer1_1)):mod_1=self.layer1_1[i](mod_1)
@@ -87,10 +81,8 @@ class m_gen(keras.Model):
         return 
     @tf.function
     def call(self, mod,training=None):#plz add layers below...
-        print("\nAAAAAAAAAAAAAAAAAAAAAAA")
         for i in range(len(self.layer1)):
             mod=self.layer1[i](mod)
-        print("\nBBBBBBBBBB")
         return mod
     
     
@@ -134,7 +126,6 @@ class m_dis(keras.Model):
                      Dense(1,activation="sigmoid"),
                 ]
         return 
-    @tf.function
     def call(self, mod,training=None):#plz add layers below...
         for i in range(len(self.layer1)):
             mod=self.layer1[i](mod)
@@ -196,16 +187,18 @@ class gan():
         dis1=tf.reduce_sum(keras.losses.binary_crossentropy (zeros,dis1)) / batch
         return dis1.numpy()
     
-batch=16
-epochs=20000
-if args.batch:batch=args.batch;print("\n**batch=",batch)
-if args.epoch:epochs=args.epoch;print("\n**epoch=",epochs)
+parser = argparse.ArgumentParser()
+parser.add_argument('-t', '--train' ,help="train_data",default="./apple2orange/testA/")
+parser.add_argument('-b', '--batch' ,help="batch",default=16,type=int)
+parser.add_argument('-p', '--predbatch' ,help="batch_size_of_prediction",default=4,type=int)
+parser.add_argument('-e', '--epoch' ,help="epochs",default=20000,type=int)
+args = parser.parse_args()
 
 if __name__ == '__main__':
     tf_ini()
-    img=img2np(ffzk("./apple2orange/testA/"),64)#apple2orange/trainA
+    img=img2np(ffzk(args.train),64)
     gans=gan()
-    gans.train(img,epoch=epochs,batch=batch)
+    gans.train(img,epoch=args.epoch,batch=args.batch)
     
     
     
