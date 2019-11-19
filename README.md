@@ -19,6 +19,6 @@ tensorflow2.0
 
 tqdm
 
-cv2
+opencv-python
 
 pip install git+https://github.com/jSm449g4d/AR9
