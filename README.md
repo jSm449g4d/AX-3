@@ -10,9 +10,9 @@ This is a sample of GAN by Tensorflow2.0
 ## How to use
 0.install required modules
 
-1.`bash apple2orange.sh`
+1.`bash lfw.sh`or`bash apple2orange.sh` or your_dataset
 
-2.`python3 main.py` 
+2.`python3 main.py -t (train_data_directory)` 
 
 ### required
 tensorflow2.0
@@ -20,5 +20,3 @@ tensorflow2.0
 tqdm
 
 opencv-python
-
-pip install git+https://github.com/jSm449g4d/AR9
