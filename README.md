@@ -15,7 +15,7 @@ This is a sample of GAN by Tensorflow2.0
 2.`python3 main.py -t (train_data_directory)` 
 
 ### required
-tensorflow2.0
+tensorflow2.x
 
 tqdm
 
