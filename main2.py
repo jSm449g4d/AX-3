@@ -201,7 +201,7 @@ class gan():
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--train' ,help="train_data",default="./lfw")
 parser.add_argument('-o', '--outdir' ,help="outdir",default="./output")
-parser.add_argument('-b', '--batch' ,help="batch",default=64,type=int)
+parser.add_argument('-b', '--batch' ,help="batch",default=32,type=int)
 parser.add_argument('-p', '--predbatch' ,help="batch_size_of_prediction",default=8,type=int)
 parser.add_argument('-e', '--epoch' ,help="epochs",default=50,type=int)
 args = parser.parse_args()
