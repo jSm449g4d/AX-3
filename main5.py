@@ -151,9 +151,9 @@ class gan():
         self.gen.summary()
         self.dis.summary()
         
-        try:self.gen.load_weights(os.path.join(args.outdir,"disw.hdf5"))
+        try:self.gen.load_weights(os.path.join(args.outdir,"disw.h5"))
         except:print("\nCannot_use_savedata...")
-        try:self.dis.load_weights(os.path.join(args.outdir,"genw.hdf5"))
+        try:self.dis.load_weights(os.path.join(args.outdir,"genw.h5"))
         except:print("\nCannot_use_savedata...")
                 
         ones=np.ones(batch).astype(np.float32)        
@@ -202,15 +202,15 @@ class gan():
             print("\nke(fake,tru):",dis1.numpy(),dis2.numpy())
             tf2img(self.pred(predbatch),os.path.join(args.outdir,"1"),epoch=i,ext=".png")
                     
-            self.dis.save_weights(os.path.join(args.outdir,"disw.hdf5"))
-            self.gen.save_weights(os.path.join(args.outdir,"genw.hdf5"))
+            self.dis.save_weights(os.path.join(args.outdir,"disw.h5"))
+            self.gen.save_weights(os.path.join(args.outdir,"genw.h5"))
             self.gen.save(os.path.join(args.outdir,"gen.h5"))
         
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-t', '--train' ,help="train_data",default="./lfw")
 parser.add_argument('-o', '--outdir' ,help="outdir",default="./output")
-parser.add_argument('-b', '--batch' ,help="batch",default=32,type=int)
+parser.add_argument('-b', '--batch' ,help="batch",default=64,type=int)
 parser.add_argument('-p', '--predbatch' ,help="batch_size_of_prediction",default=8,type=int)
 parser.add_argument('-e', '--epoch' ,help="epochs",default=50,type=int)
 args = parser.parse_args()
