@@ -1,5 +1,5 @@
 #functionalAPI_test
-#main.py -> functionalAPI_ize
+#main.py -> functionalAPI_ize ->mode seeking
 import numpy as np
 import cv2
 import tensorflow as tf
@@ -9,6 +9,7 @@ ReLU,Softmax,Flatten,Reshape,UpSampling2D,Input,Activation,LayerNormalization
 from tqdm import tqdm
 import argparse
 import os
+import random
 
 
 #from AR9
@@ -65,9 +66,9 @@ class c3c():
             mod=Activation("relu")(mod)
         return mod
     
-def m_gen(dim_rand=8):
-    mod_inp = Input(shape=(dim_rand,))
-    mod=Reshape((1,1,8))(mod_inp)
+def GEN(input_dim=8):
+    mod=mod_inp = Input(shape=(input_dim,))
+    mod=Reshape((1,1,8))(mod)
     mod=UpSampling2D(2)(mod)
     mod=c3c(12)(mod)
     mod=UpSampling2D(2)(mod)
@@ -90,9 +91,9 @@ def m_gen(dim_rand=8):
     mod=Conv2D(3,1,padding="same",activation="sigmoid")(mod)
     return keras.models.Model(inputs=mod_inp, outputs=mod)
 
-def m_dis(input_shape=(64,64,3,)):
-    mod_inp = Input(shape=input_shape)
-    mod=c3c(16)(mod_inp)
+def DIS(input_shape=(64,64,3,)):
+    mod=mod_inp = Input(shape=input_shape)
+    mod=c3c(16)(mod)
     mod=c3c(18)(mod)
     mod=c3c(24)(mod)
     mod=Conv2D(24,4,2,padding="same",activation="relu")(mod)
@@ -127,11 +128,12 @@ def m_dis(input_shape=(64,64,3,)):
     return keras.models.Model(inputs=mod_inp, outputs=mod)
     
 class gan():
-    def __init__(self,trials=[]):
-        self.gen=m_gen(dim_rand=8)
-        self.dis=m_dis()
+    def __init__(self,trials=[],dim=8):
+        self.dim=dim
+        self.gen=GEN(input_dim=self.dim)
+        self.dis=DIS()
     def pred(self,batch=4):
-        return self.gen(np.random.rand(batch,8).astype(np.float32))
+        return self.gen(np.random.rand(batch,self.dim).astype(np.float32))
     def train(self,data=[],epoch=1000,batch=16,predbatch=8):
         
         optimizer = keras.optimizers.SGD(0.003)
@@ -149,7 +151,7 @@ class gan():
                 
         ones=np.ones(batch).astype(np.float32)        
         zeros=np.zeros(batch).astype(np.float32)
-        labels=np.random.rand(data.shape[0],8).astype(np.float32)
+        labels=np.random.rand(data.shape[0],self.dim).astype(np.float32)
         
         
         for i in range(epoch):
@@ -160,7 +162,7 @@ class gan():
                     with tf.GradientTape() as tape:
                         dis=self.dis(self.gen(label))
                         dis=keras.losses.binary_crossentropy(zeros,dis)
-                        dis=tf.reduce_sum(dis) / batch
+                        dis=tf.reduce_mean(dis) 
                         grad=tape.gradient(dis,self.dis.trainable_variables)
                         grad,_ = tf.clip_by_global_norm(grad, 15)
                         optimizer.apply_gradients(zip(grad,self.dis.trainable_variables))
@@ -169,16 +171,23 @@ class gan():
                     with tf.GradientTape() as tape:
                         dis=self.dis(datum)
                         dis=keras.losses.binary_crossentropy(ones,dis)
-                        dis=tf.reduce_sum(dis) / batch
+                        dis=tf.reduce_mean(dis) 
                         grad=tape.gradient(dis,self.dis.trainable_variables)
                         grad,_ = tf.clip_by_global_norm(grad, 15)
                         optimizer.apply_gradients(zip(grad,self.dis.trainable_variables))
                         del tape
                     
                     with tf.GradientTape() as tape:
+                        gen=self.gen(label)
                         dis_gen=self.dis(self.gen(label))
                         dis_gen=keras.losses.binary_crossentropy(ones,dis_gen)
-                        dis_gen=tf.reduce_sum(dis_gen) / batch
+                        dis_gen=tf.reduce_mean(dis_gen) 
+                        ####mode seeking (tentative implement)###
+                        roll_shift=random.randint(1,batch-1)
+                        Lms=tf.reduce_mean(tf.abs(label-tf.roll(label,roll_shift,axis=0)),[1])
+                        Lms/=tf.reduce_mean(tf.abs(gen-tf.roll(gen,roll_shift,axis=0)),[1,2,3])+np.full(batch,1e-5)
+                        dis_gen+=tf.reduce_mean(Lms) 
+                        ####mode seeking (tentative implement)###
                         grad=tape.gradient(dis_gen,self.gen.trainable_variables) 
                         grad,_ = tf.clip_by_global_norm(grad, 15)
                         optimizer.apply_gradients(zip(grad,self.gen.trainable_variables))
@@ -186,11 +195,9 @@ class gan():
                     
                     pbar.update(batch)
                     
-            dis1=self.dis(self.gen(labels[:batch]))
-            dis2=self.dis(data[:batch])
-            dis1=tf.reduce_sum(keras.losses.binary_crossentropy (zeros,dis1)) / batch
-            dis2=tf.reduce_sum(keras.losses.binary_crossentropy (ones,dis2)) / batch
-            print("\nke(fake,tru):",dis1.numpy(),dis2.numpy())
+            print("\nke(fake,tru):",
+                  tf.reduce_mean(keras.losses.binary_crossentropy (zeros,self.dis(self.gen(labels[:batch])))) ,
+                  tf.reduce_mean(keras.losses.binary_crossentropy (ones,self.dis(data[:batch]))))
             tf2img(self.pred(predbatch),os.path.join(args.outdir,"1"),epoch=i,ext=".png")
                     
             self.dis.save_weights(os.path.join(args.outdir,"disw.h5"))
