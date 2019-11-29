@@ -196,8 +196,8 @@ class gan():
                     pbar.update(batch)
                     
             print("\nke(fake,tru):",
-                  tf.reduce_mean(keras.losses.binary_crossentropy (zeros,self.dis(self.gen(labels[:batch])))) ,
-                  tf.reduce_mean(keras.losses.binary_crossentropy (ones,self.dis(data[:batch]))))
+                  tf.reduce_mean(keras.losses.binary_crossentropy (zeros,self.dis(self.gen(labels[:batch])))).numpy(),
+                  tf.reduce_mean(keras.losses.binary_crossentropy (ones,self.dis(data[:batch])))).numpy()
             tf2img(self.pred(predbatch),os.path.join(args.outdir,"1"),epoch=i,ext=".png")
                     
             self.dis.save_weights(os.path.join(args.outdir,"disw.h5"))
